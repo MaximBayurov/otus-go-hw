@@ -19,13 +19,13 @@ func Unpack(str string) (string, error) {
 				b.WriteString(prev)
 			}
 			prev = string(v)
-		} else {
-			if prev == "" {
-				return "", ErrInvalidString
-			}
-			b.WriteString(strings.Repeat(prev, count))
-			prev = ""
+			continue
 		}
+		if prev == "" {
+			return "", ErrInvalidString
+		}
+		b.WriteString(strings.Repeat(prev, count))
+		prev = ""
 	}
 	if prev != "" {
 		b.WriteString(prev)
