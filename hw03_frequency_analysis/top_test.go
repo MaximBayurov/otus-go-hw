@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -78,5 +79,44 @@ func TestTop10(t *testing.T) {
 			}
 			require.Equal(t, expected, Top10(text))
 		}
+	})
+
+	t.Run("word forms test", func(t *testing.T) {
+		if taskWithAsteriskIsCompleted {
+			t.Skip()
+			return
+		}
+
+		var b strings.Builder
+		expected := []string{
+			"нога",
+			"ноги",
+			"ногу",
+			"ногами",
+			"Ног",
+			"ног",
+		}
+		for i, word := range expected {
+			b.WriteString(strings.Repeat(word+" ", len(expected)-i))
+		}
+		require.Equal(t, expected, Top10(strings.TrimRight(b.String(), " ")))
+	})
+
+	t.Run("punctuation test", func(t *testing.T) {
+		if taskWithAsteriskIsCompleted {
+			t.Skip()
+			return
+		}
+
+		expected := []string{
+			"and",
+			"one",
+			"cat",
+			"cats",
+			"dog,",
+			"dog,two",
+			"man",
+		}
+		require.Equal(t, expected, Top10("cat and dog, one dog,two cats and one man"))
 	})
 }
