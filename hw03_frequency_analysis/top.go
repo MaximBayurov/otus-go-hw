@@ -9,12 +9,12 @@ func Top10(text string) (top []string) {
 	textTokens := strings.Fields(text)
 	counts := make(map[string]int, len(textTokens))
 	for _, w := range textTokens {
-		counts[w] += 1
+		counts[w]++
 	}
 
 	words := make([]string, len(counts))
 	i := 0
-	for k, _ := range counts {
+	for k := range counts {
 		words[i] = k
 		i++
 	}
@@ -29,9 +29,9 @@ func Top10(text string) (top []string) {
 			return 1
 		} else if aCount > bCount {
 			return -1
-		} else {
-			return strings.Compare(a, b)
 		}
+
+		return strings.Compare(a, b)
 	})
 
 	limit := 10
