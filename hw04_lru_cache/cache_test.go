@@ -6,6 +6,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -50,7 +51,57 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+
+		wasInCache := c.Set("aaa", 100)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("bbb", 200)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("ccc", 300)
+		require.False(t, wasInCache)
+
+		c.Clear()
+
+		val, ok := c.Get("aaa")
+		require.False(t, ok)
+		require.Nil(t, val)
+
+		val, ok = c.Get("bbb")
+		require.False(t, ok)
+		require.Nil(t, val)
+
+		wasInCache = c.Set("ccc", 300)
+		require.False(t, wasInCache)
+	})
+
+	t.Run("pushing out overflow", func(t *testing.T) {
+		c := NewCache(3)
+		c.Set("a", 1)
+		c.Set("b", 2)
+		c.Set("c", 3)
+		c.Set("d", 4)
+
+		val, ok := c.Get("a")
+		assert.False(t, ok)
+		assert.Nil(t, val)
+	})
+
+	t.Run("pushing out unused", func(t *testing.T) {
+		c := NewCache(3)
+		c.Set("a", 1)
+		c.Set("b", 2)
+		c.Set("c", 3)
+
+		_, _ = c.Get("b")
+		_, _ = c.Get("a")
+		_ = c.Set("c", 5)
+		_ = c.Set("d", 4)
+
+		val, ok := c.Get("b")
+		assert.Nil(t, val)
+		assert.False(t, ok)
 	})
 }
 
