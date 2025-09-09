@@ -32,11 +32,12 @@ func Run(tasks []Task, n, m int) error {
 				if len(tasks) >= 1 {
 					tasks = tasks[1:]
 				}
-				mx.Unlock()
 
 				if task == nil || errCount >= m {
+					mx.Unlock()
 					return
 				}
+				mx.Unlock()
 
 				err := task()
 				if err != nil {
@@ -47,10 +48,11 @@ func Run(tasks []Task, n, m int) error {
 
 				mx.Lock()
 				tcount := len(tasks)
-				mx.Unlock()
 				if tcount <= 0 || errCount >= m {
+					mx.Unlock()
 					return
 				}
+				mx.Unlock()
 			}
 		}()
 	}
