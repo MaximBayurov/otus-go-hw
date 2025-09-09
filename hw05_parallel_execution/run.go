@@ -26,7 +26,7 @@ func Run(tasks []Task, n, m int) error {
 		go func() {
 			defer wg.Done()
 
-			for true {
+			for {
 				mx.Lock()
 				task := tasks[0]
 				if len(tasks) >= 1 {
