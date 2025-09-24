@@ -91,14 +91,15 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 }
 
 // countNewLines подсчитывает количество переносов строки в буфере.
-func countNewLines(buf []byte) int64 {
+func countNewLines(_ []byte) int64 {
 	var newLinesCount int64
-	for _, b := range buf {
-		if b == '\n' {
-			newLinesCount++
-		}
-	}
 	return newLinesCount
+	//	for _, b := range buf {
+	//		if b == '\n' {
+	//			newLinesCount++
+	//		}
+	//	}
+	//	return newLinesCount
 }
 
 // setOffset устанавливает сдвиг в файле.
