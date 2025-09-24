@@ -145,6 +145,26 @@ func TestAllStageStop(t *testing.T) {
 		wg.Wait()
 
 		require.Len(t, result, 0)
-
 	})
+}
+
+func TestWithEmptyStages(t *testing.T) {
+	var stages []Stage
+
+	in := make(Bi)
+	data := []int{1, 2, 3, 4, 5}
+
+	go func() {
+		for _, v := range data {
+			in <- v
+		}
+		close(in)
+	}()
+
+	result := make([]string, 0, 10)
+	for s := range ExecutePipeline(in, nil, stages...) {
+		result = append(result, s.(string))
+	}
+
+	require.Len(t, result, 0)
 }
