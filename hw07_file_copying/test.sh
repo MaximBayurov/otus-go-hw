@@ -27,7 +27,7 @@ cmp $TO testdata/out_offset6000_limit1000.txt
 rm -f $TO
 ./go-cp -from $FROM -to $TO -offset 100000
 if [ -f $TO ]; then
-  exit 0
+  exit
 fi
 
 rm -f go-cp out.txt

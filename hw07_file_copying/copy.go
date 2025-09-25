@@ -43,7 +43,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	leftToRead := defineWillReadBytes(limit, offset, fromFileInfo)
-	log.Println(leftToRead)
 	totalToRead := int(leftToRead)
 	bufSize := defineBufSize(leftToRead)
 	buf := make([]byte, bufSize)
