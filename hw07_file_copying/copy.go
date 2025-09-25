@@ -2,13 +2,14 @@ package main
 
 import (
 	"errors"
-	"github.com/cheggaaa/pb/v3"
 	"io"
 	"log"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
-const DefaultBufSize = 20
+const DefaultBufSize = 1024
 
 var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
@@ -42,6 +43,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	leftToRead := defineWillReadBytes(limit, offset, fromFileInfo)
+	log.Println(leftToRead)
 	totalToRead := int(leftToRead)
 	bufSize := defineBufSize(leftToRead)
 	buf := make([]byte, bufSize)
@@ -67,11 +69,17 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	return nil
 }
 
-// defineWillReadBytes определяет сколько байт будет прочитано
-func defineWillReadBytes(limit int64, offset int64, info os.FileInfo) (willReadBytes int64) {
-	willReadBytes = info.Size() - (offset + limit)
-	if willReadBytes < 0 {
-		willReadBytes = info.Size() - offset
+// defineWillReadBytes определяет сколько байт будет прочитано.
+func defineWillReadBytes(limit, offset int64, info os.FileInfo) (willReadBytes int64) {
+	if limit > 0 {
+		willReadBytes = limit
+	} else {
+		willReadBytes = info.Size()
+	}
+
+	leftToRead := info.Size() - offset
+	if leftToRead < willReadBytes {
+		willReadBytes = leftToRead
 	}
 	return
 }
