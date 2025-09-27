@@ -29,6 +29,10 @@ rm -f $TO
 if [ -f $TO ]; then
   exit
 fi
+./go-cp -from /dev/urandom -to $TO
+if [ -f $TO ]; then
+  exit
+fi
 
 rm -f go-cp out.txt
 echo "PASS"

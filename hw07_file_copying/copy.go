@@ -42,7 +42,11 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return ErrOffsetExceedsFileSize
 	}
 
-	leftToRead := defineWillReadBytes(limit, offset, fromFileInfo)
+	if fromFileInfo.Size() == 0 {
+		return ErrUnsupportedFile
+	}
+
+	leftToRead := defineWillReadBytes(limit, offset, fromFileInfo.Size())
 	totalToRead := int(leftToRead)
 	bufSize := defineBufSize(leftToRead)
 	buf := make([]byte, bufSize)
@@ -50,12 +54,12 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	for leftToRead > 0 {
 		read, err := fromFile.Read(buf)
 		if err != nil {
-			return ErrUnsupportedFile
+			return err
 		}
 
 		_, err = toFile.Write(buf)
 		if err != nil {
-			return ErrUnsupportedFile
+			return err
 		}
 		leftToRead -= int64(read)
 		if leftToRead < bufSize {
@@ -69,14 +73,14 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 }
 
 // defineWillReadBytes определяет сколько байт будет прочитано.
-func defineWillReadBytes(limit, offset int64, info os.FileInfo) (willReadBytes int64) {
+func defineWillReadBytes(limit, offset, fileSize int64) (willReadBytes int64) {
 	if limit > 0 {
 		willReadBytes = limit
 	} else {
-		willReadBytes = info.Size()
+		willReadBytes = fileSize
 	}
 
-	leftToRead := info.Size() - offset
+	leftToRead := fileSize - offset
 	if leftToRead < willReadBytes {
 		willReadBytes = leftToRead
 	}
