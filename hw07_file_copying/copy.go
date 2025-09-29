@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 
@@ -17,23 +18,28 @@ var (
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
+	fromFileInfo, err := getFileInfoFor(fromPath)
+	if err != nil {
+		return err
+	}
+
+	if !fromFileInfo.Mode().IsRegular() {
+		return ErrUnsupportedFile
+	}
+
+	if fromFileInfo.Size() < offset {
+		return ErrOffsetExceedsFileSize
+	}
+
 	fromFile, err := os.Open(fromPath)
 	if err != nil {
 		return err
 	}
 	defer closeFile(fromFile)
 
-	fromFileInfo, err := fromFile.Stat()
+	_, err = fromFile.Seek(offset, io.SeekStart)
 	if err != nil {
-		return err
-	}
-	if fromFileInfo.Size() < offset {
 		return ErrOffsetExceedsFileSize
-	}
-
-	log.Println(fromFileInfo.Mode().Type().String())
-	if !fromFileInfo.Mode().IsRegular() {
-		return ErrUnsupportedFile
 	}
 
 	toFile, err := os.Create(toPath)
@@ -41,11 +47,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return err
 	}
 	defer closeFile(toFile)
-
-	_, err = fromFile.Seek(offset, io.SeekStart)
-	if err != nil {
-		return ErrOffsetExceedsFileSize
-	}
 
 	leftToRead := defineWillReadBytes(limit, offset, fromFileInfo.Size())
 	totalToRead := int(leftToRead)
@@ -71,6 +72,22 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	bar.Finish()
 
 	return nil
+}
+
+// getFileInfoFor получает информацию о файле для переданного пути.
+func getFileInfoFor(path string) (os.FileInfo, error) {
+	fileInfo, err := os.Lstat(path)
+	if err != nil {
+		return nil, err
+	}
+	if fileInfo.Mode().Type()&fs.ModeSymlink != 0 {
+		return fileInfo, nil
+	}
+	fileInfo, err = os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+	return fileInfo, nil
 }
 
 // defineWillReadBytes определяет сколько байт будет прочитано.
