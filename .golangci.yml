@@ -55,6 +55,7 @@ linters:
           allow:
             - $gostd
             - golang.org/x/example/hello/reverse
+            - github.com/cheggaaa/pb/v3
         Test:
           files:
             - $test

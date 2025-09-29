@@ -2,6 +2,6 @@ package main
 
 import "testing"
 
-func TestCopy(t *testing.T) {
+func TestCopy(_ *testing.T) {
 	// Place your code here.
 }
