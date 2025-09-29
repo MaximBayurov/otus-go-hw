@@ -24,6 +24,9 @@ cmp $TO testdata/out_offset100_limit1000.txt
 ./go-cp -from $FROM -to $TO -offset 6000 -limit 1000
 cmp $TO testdata/out_offset6000_limit1000.txt
 
+./go-cp -from testdata/empty.txt -to $TO
+cmp $TO testdata/out_empty.txt
+
 rm -f $TO
 ./go-cp -from $FROM -to $TO -offset 100000
 if [ -f $TO ]; then
@@ -40,9 +43,6 @@ if [ -f $TO ]; then
   exit 1
 fi
 rm -f symlink
-
-./go-cp -from testdata/empty.txt -to $TO
-cmp $TO testdata/out_empty.txt
 
 rm -f go-cp out.txt
 echo "PASS"
