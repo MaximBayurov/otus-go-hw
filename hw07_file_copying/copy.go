@@ -31,6 +31,10 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return ErrOffsetExceedsFileSize
 	}
 
+	if !fromFileInfo.Mode().IsRegular() {
+		return ErrUnsupportedFile
+	}
+
 	toFile, err := os.Create(toPath)
 	if err != nil {
 		return err
@@ -40,10 +44,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	_, err = fromFile.Seek(offset, io.SeekStart)
 	if err != nil {
 		return ErrOffsetExceedsFileSize
-	}
-
-	if !fromFileInfo.Mode().IsRegular() {
-		return ErrUnsupportedFile
 	}
 
 	leftToRead := defineWillReadBytes(limit, offset, fromFileInfo.Size())
