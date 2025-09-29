@@ -34,5 +34,15 @@ if [ -f $TO ]; then
   exit
 fi
 
+./go-cp -from testdata/empty.txt -to $TO
+cmp $TO testdata/out_empty.txt
+
+ln -sf $FROM symlink
+./go-cp -from symlink -to $TO
+if [ -f $TO ]; then
+  exit
+fi
+rm -f symlink
+
 rm -f go-cp out.txt
 echo "PASS"

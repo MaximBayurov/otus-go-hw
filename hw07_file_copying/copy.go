@@ -42,7 +42,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return ErrOffsetExceedsFileSize
 	}
 
-	if fromFileInfo.Size() == 0 {
+	if !fromFileInfo.Mode().IsRegular() {
 		return ErrUnsupportedFile
 	}
 
