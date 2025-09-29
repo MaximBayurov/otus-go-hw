@@ -27,11 +27,11 @@ cmp $TO testdata/out_offset6000_limit1000.txt
 rm -f $TO
 ./go-cp -from $FROM -to $TO -offset 100000
 if [ -f $TO ]; then
-  exit
+  exit 1
 fi
 ./go-cp -from /dev/urandom -to $TO
 if [ -f $TO ]; then
-  exit
+  exit 1
 fi
 
 ./go-cp -from testdata/empty.txt -to $TO
@@ -40,7 +40,7 @@ cmp $TO testdata/out_empty.txt
 ln -sf $FROM symlink
 ./go-cp -from symlink -to $TO
 if [ -f $TO ]; then
-  exit
+  exit 1
 fi
 rm -f symlink
 
