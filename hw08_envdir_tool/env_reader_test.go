@@ -10,7 +10,7 @@ func TestReadDir(t *testing.T) {
 	dir := "testdata/env"
 	expected := Environment{
 		"BAR":   EnvValue{Value: "bar", NeedRemove: false},
-		"EMPTY": EnvValue{Value: "", NeedRemove: true},
+		"EMPTY": EnvValue{Value: "", NeedRemove: false},
 		"FOO":   EnvValue{Value: "   foo\nwith new line", NeedRemove: false},
 		"HELLO": EnvValue{Value: "\"hello\"", NeedRemove: false},
 		"UNSET": EnvValue{Value: "", NeedRemove: true},

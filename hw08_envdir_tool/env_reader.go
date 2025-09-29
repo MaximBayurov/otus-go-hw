@@ -95,8 +95,7 @@ func makeEnvValueFor(path string) (*EnvValue, error) {
 	if scanner.Scan() {
 		envVal.Value = strings.TrimRight(scanner.Text(), " \t")
 		envVal.Value = strings.ReplaceAll(envVal.Value, string([]byte{0x00}), "\n")
-	}
-	if len(envVal.Value) == 0 {
+	} else {
 		envVal.NeedRemove = true
 	}
 
