@@ -53,5 +53,5 @@ go test -v -count=1 -timeout=30s -tags bench .
 
 ### Запуск benchmark на Windows
 ```bash
-go test -tags bench_standalone -bench=BenchmarkGetDomainStat -count=10 --benchmem | out-file new.txt -encoding utf8
+go test -tags bench_standalone -bench=BenchmarkGetDomainStat -count=10 --benchmem | out-file new.benchmark.txt -encoding utf8
 ```
