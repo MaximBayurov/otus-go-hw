@@ -72,6 +72,10 @@ func (c *primitiveTelnetClient) Receive() error {
 		data, err := reader.ReadString('\n')
 		if err != nil {
 			if errors.Is(err, io.EOF) {
+				_, err = fmt.Fprint(c.out, data)
+				if err != nil {
+					return err
+				}
 				return nil
 			}
 			return err
