@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -33,8 +35,13 @@ type primitiveTelnetClient struct {
 }
 
 func (c *primitiveTelnetClient) Connect() error {
+	dialer := &net.Dialer{}
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+
 	var err error
-	c.connection, err = net.DialTimeout("tcp", c.address, c.timeout)
+	c.connection, err = dialer.DialContext(ctx, "tcp", c.address)
+
 	return err
 }
 
@@ -64,12 +71,12 @@ func (c *primitiveTelnetClient) Receive() error {
 	for {
 		data, err := reader.ReadString('\n')
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return nil
 			}
 			return err
 		}
-		_, err = fmt.Fprintf(c.out, data)
+		_, err = fmt.Fprint(c.out, data)
 		if err != nil {
 			return err
 		}
