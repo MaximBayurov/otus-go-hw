@@ -55,7 +55,6 @@ func main() {
 		}
 	}()
 
-	done := make(chan struct{})
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT)
 
@@ -65,7 +64,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		close(done)
 	}()
 
 	// Запись в сокет
@@ -74,11 +72,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		close(done)
 	}()
 
 	select {
-	case <-done:
 	case <-sigCh:
 	}
 }
