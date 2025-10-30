@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -70,11 +71,10 @@ func (c *primitiveTelnetClient) Receive() error {
 	for {
 		data, err := reader.ReadString('\n')
 		if err != nil {
-			_, err = fmt.Fprint(c.out, data)
-			if err != nil {
-				return err
+			if errors.Is(err, io.EOF) {
+				return nil
 			}
-			return nil
+			return err
 		}
 		_, err = fmt.Fprint(c.out, data)
 		if err != nil {
