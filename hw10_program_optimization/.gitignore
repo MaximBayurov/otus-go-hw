@@ -1,2 +1,3 @@
 *.benchmark.txt
 benchstat.txt
+benchstat.*.txt
