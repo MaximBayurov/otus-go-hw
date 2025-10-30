@@ -74,7 +74,5 @@ func main() {
 		}
 	}()
 
-	select {
-	case <-sigCh:
-	}
+	<-sigCh
 }
