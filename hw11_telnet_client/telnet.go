@@ -52,7 +52,8 @@ func (c *primitiveTelnetClient) Close() error {
 func (c *primitiveTelnetClient) Send() error {
 	scanner := bufio.NewScanner(c.in)
 	for scanner.Scan() {
-		_, err := c.connection.Write([]byte(scanner.Text()))
+		text := scanner.Text() + "\n"
+		_, err := c.connection.Write([]byte(text))
 		if err != nil {
 			return err
 		}
