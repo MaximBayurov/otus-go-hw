@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
-	"regexp"
 	"strings"
 )
 
@@ -17,10 +15,6 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(reader io.Reader, domain string) (DomainStat, error) {
-	domainRegexp, err := regexp.Compile("\\." + domain)
-	if err != nil {
-		return nil, fmt.Errorf("domain reg exp compile: %w", err)
-	}
 	result := make(DomainStat)
 	rd := bufio.NewReader(reader)
 	var user User
@@ -36,7 +30,8 @@ func GetDomainStat(reader io.Reader, domain string) (DomainStat, error) {
 		if err = json.Unmarshal(line, &user); err != nil {
 			return nil, err
 		}
-		if domainRegexp.Match([]byte(user.Email)) {
+
+		if strings.HasSuffix(user.Email, "."+domain) {
 			user.Email = strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
 			if len(user.Email) > 0 {
 				_, ok := result[user.Email]
