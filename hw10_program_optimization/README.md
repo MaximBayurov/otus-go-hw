@@ -50,3 +50,8 @@ go test -v -count=1 -timeout=30s -tags bench .
 - Работа с сырыми байтами, нахождение позиции `"Email"` и пр. вместо ускорения анмаршалинга более поддерживаемыми и понятными средствами.
 
 #### Зачёт от 7 баллов
+
+### Запуск benchmark на Windows
+```bash
+go test -tags bench_standalone -bench=BenchmarkGetDomainStat -count=10 --benchmem | out-file new.benchmark.txt -encoding utf8
+```
