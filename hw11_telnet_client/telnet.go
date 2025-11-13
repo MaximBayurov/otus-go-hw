@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"context"
+	"errors"
+	"fmt"
 	"io"
+	"net"
 	"time"
 )
 
@@ -13,9 +18,68 @@ type TelnetClient interface {
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
-	// Place your code here.
+	return &primitiveTelnetClient{
+		address: address,
+		timeout: timeout,
+		in:      in,
+		out:     out,
+	}
+}
+
+type primitiveTelnetClient struct {
+	address    string
+	timeout    time.Duration
+	in         io.ReadCloser
+	out        io.Writer
+	connection net.Conn
+}
+
+func (c *primitiveTelnetClient) Connect() error {
+	dialer := &net.Dialer{}
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+
+	var err error
+	c.connection, err = dialer.DialContext(ctx, "tcp", c.address)
+
+	return err
+}
+
+func (c *primitiveTelnetClient) Close() error {
+	return c.connection.Close()
+}
+
+func (c *primitiveTelnetClient) Send() error {
+	scanner := bufio.NewScanner(c.in)
+	for scanner.Scan() {
+		text := scanner.Text() + "\n"
+		_, err := c.connection.Write([]byte(text))
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-// Place your code here.
-// P.S. Author's solution takes no more than 50 lines.
+func (c *primitiveTelnetClient) Receive() error {
+	reader := bufio.NewReader(c.connection)
+	for {
+		data, err := reader.ReadString('\n')
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				_, err = fmt.Fprint(c.out, data)
+				return err
+			}
+			return err
+		}
+		_, err = fmt.Fprint(c.out, data)
+		if err != nil {
+			return err
+		}
+	}
+}
