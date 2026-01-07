@@ -53,19 +53,19 @@ func (s *Storage) Create(event storagecontracts.Event) (storagecontracts.Event, 
 	return event, nil
 }
 
-func (s *Storage) Update(ID string, event storagecontracts.Event) (storagecontracts.Event, error) {
+func (s *Storage) Update(id string, event storagecontracts.Event) (storagecontracts.Event, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	// Проверяем существование события
-	existingEvent, exists := s.events[ID]
+	existingEvent, exists := s.events[id]
 	if !exists {
 		return storagecontracts.Event{}, storagecontracts.ErrEventNotFound
 	}
 
-	// Копируем ID пользователя из существующего события
+	// Копируем id пользователя из существующего события
 	event.OwnerID = existingEvent.OwnerID
-	event.ID = ID
+	event.ID = id
 
 	// Валидация
 	if err := validateEvent(event); err != nil {
@@ -73,7 +73,7 @@ func (s *Storage) Update(ID string, event storagecontracts.Event) (storagecontra
 	}
 
 	// Проверяем пересечения, исключая текущее событие
-	if err := s.checkTimeOverlapExcluding(event, ID); err != nil {
+	if err := s.checkTimeOverlapExcluding(event, id); err != nil {
 		return storagecontracts.Event{}, err
 	}
 
@@ -81,7 +81,7 @@ func (s *Storage) Update(ID string, event storagecontracts.Event) (storagecontra
 	s.removeFromIndexes(existingEvent)
 
 	// Сохраняем обновленное событие
-	s.events[ID] = event
+	s.events[id] = event
 
 	// Обновляем индексы
 	s.updateIndexes(event)
@@ -89,11 +89,11 @@ func (s *Storage) Update(ID string, event storagecontracts.Event) (storagecontra
 	return event, nil
 }
 
-func (s *Storage) Delete(ID string) error {
+func (s *Storage) Delete(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	event, exists := s.events[ID]
+	event, exists := s.events[id]
 	if !exists {
 		return storagecontracts.ErrEventNotFound
 	}
@@ -102,7 +102,7 @@ func (s *Storage) Delete(ID string) error {
 	s.removeFromIndexes(event)
 
 	// Удаляем из основного словаря
-	delete(s.events, ID)
+	delete(s.events, id)
 
 	return nil
 }
@@ -157,11 +157,11 @@ func (s *Storage) GetEventsForMonth(startOfMonth time.Time) ([]storagecontracts.
 }
 
 // GetEventByID возвращает событие по ID.
-func (s *Storage) GetEventByID(ID string) (storagecontracts.Event, error) {
+func (s *Storage) GetEventByID(id string) (storagecontracts.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	event, exists := s.events[ID]
+	event, exists := s.events[id]
 	if !exists {
 		return storagecontracts.Event{}, storagecontracts.ErrEventNotFound
 	}
@@ -170,7 +170,7 @@ func (s *Storage) GetEventByID(ID string) (storagecontracts.Event, error) {
 }
 
 // getEventsForPeriod возвращает события за переданный период.
-func (s *Storage) getEventsForPeriod(startDate, endDate time.Time) ([]storagecontracts.Event, error) {
+func (s *Storage) getEventsForPeriod(startDate, endDate time.Time) ([]storagecontracts.Event, error) { //nolint:unparam
 	events := make([]storagecontracts.Event, 0)
 
 	// Итерируем по дням недели

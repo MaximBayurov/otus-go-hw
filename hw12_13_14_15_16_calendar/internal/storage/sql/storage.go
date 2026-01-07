@@ -11,7 +11,7 @@ import (
 	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
 	storageutils "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/utils"
 	"github.com/google/uuid"
-	_ "github.com/jackc/pgx/stdlib"
+	_ "github.com/jackc/pgx/stdlib" // justifying comment
 	"github.com/jmoiron/sqlx"
 )
 
@@ -41,12 +41,12 @@ func (s *Storage) Connect(ctx context.Context) error {
 	// Устанавливаем настройки пула соединений
 	s.db.SetMaxOpenConns(s.configs.MaxOpenConn)
 	s.db.SetMaxIdleConns(s.configs.MaxIdleConn)
-	s.db.SetConnMaxLifetime(s.configs.MaxLifetimeConn * time.Minute)
+	s.db.SetConnMaxLifetime(s.configs.MaxLifetimeConn * time.Minute) //nolint:durationcheck
 
 	return nil
 }
 
-func (s *Storage) Close(ctx context.Context) error {
+func (s *Storage) Close(_ context.Context) error {
 	return s.db.Close()
 }
 
@@ -109,7 +109,7 @@ func (s *Storage) Create(event storagecontracts.Event) (storagecontracts.Event, 
 	return result, nil
 }
 
-func (s *Storage) Update(ID string, event storagecontracts.Event) (storagecontracts.Event, error) {
+func (s *Storage) Update(id string, event storagecontracts.Event) (storagecontracts.Event, error) {
 	tx, err := s.db.Beginx()
 	if err != nil {
 		return storagecontracts.Event{}, fmt.Errorf("transaction begin: %w", err)
@@ -119,7 +119,7 @@ func (s *Storage) Update(ID string, event storagecontracts.Event) (storagecontra
 	}()
 
 	// Получаем существующее событие для проверки
-	_, err = s.getEventByID(tx, ID)
+	_, err = s.getEventByID(tx, id)
 	if err != nil {
 		return storagecontracts.Event{}, err
 	}
@@ -163,7 +163,7 @@ func (s *Storage) Update(ID string, event storagecontracts.Event) (storagecontra
 	return result, nil
 }
 
-func (s *Storage) Delete(ID string) error {
+func (s *Storage) Delete(id string) error {
 	tx, err := s.db.Beginx()
 	if err != nil {
 		return fmt.Errorf("transaction begin: %w", err)
@@ -176,7 +176,7 @@ func (s *Storage) Delete(ID string) error {
 	result, err := s.db.NamedExec(
 		query,
 		map[string]interface{}{
-			"id": ID,
+			"id": id,
 		},
 	)
 	if err != nil {

@@ -339,7 +339,7 @@ func TestGetEventsForDay(t *testing.T) {
 	assert.NotContains(t, titles, "Завтрашняя встреча")
 
 	// Получаем события на завтра
-	events, err = mem.GetEventsForDay(tomorrow)
+	events, _ = mem.GetEventsForDay(tomorrow)
 	assert.Len(t, events, 1)
 	assert.Equal(t, "Завтрашняя встреча", events[0].Title)
 }
@@ -378,7 +378,7 @@ func TestGetEventsForWeek(t *testing.T) {
 	}
 
 	// Получаем события на неделю
-	weekEvents, err := mem.GetEventsForWeek(startOfWeek)
+	weekEvents, _ := mem.GetEventsForWeek(startOfWeek)
 	assert.Len(t, weekEvents, 3)
 
 	// Проверяем, что события следующей недели не попали в результат
@@ -389,10 +389,10 @@ func TestGetEventsForWeek(t *testing.T) {
 		OwnerID: "user1",
 	}
 
-	_, err = mem.Create(nextWeekEvent)
+	_, err := mem.Create(nextWeekEvent)
 	require.NoError(t, err)
 
-	weekEvents, err = mem.GetEventsForWeek(startOfWeek)
+	weekEvents, _ = mem.GetEventsForWeek(startOfWeek)
 	assert.Len(t, weekEvents, 3) // Все еще 3 события
 }
 
@@ -430,7 +430,7 @@ func TestGetEventsForMonth(t *testing.T) {
 	}
 
 	// Получаем события на месяц
-	monthEvents, err := mem.GetEventsForMonth(startOfMonth)
+	monthEvents, _ := mem.GetEventsForMonth(startOfMonth)
 	assert.Len(t, monthEvents, 3)
 
 	// Создаем событие на следующий месяц
@@ -441,7 +441,7 @@ func TestGetEventsForMonth(t *testing.T) {
 		OwnerID: "user1",
 	}
 
-	_, err = mem.Create(nextMonthEvent)
+	_, err := mem.Create(nextMonthEvent)
 	require.NoError(t, err)
 
 	// Проверяем, что событие следующего месяца не попало в результат
@@ -546,13 +546,13 @@ func TestEventWithMultiDayDuration(t *testing.T) {
 	day2 := day1.AddDate(0, 0, 1)
 	day3 := day1.AddDate(0, 0, 2)
 
-	eventsDay1, err := mem.GetEventsForDay(day1)
+	eventsDay1, _ := mem.GetEventsForDay(day1)
 	assert.Len(t, eventsDay1, 1)
 
-	eventsDay2, err := mem.GetEventsForDay(day2)
+	eventsDay2, _ := mem.GetEventsForDay(day2)
 	assert.Len(t, eventsDay2, 1)
 
-	eventsDay3, err := mem.GetEventsForDay(day3)
+	eventsDay3, _ := mem.GetEventsForDay(day3)
 	assert.Len(t, eventsDay3, 1)
 }
 

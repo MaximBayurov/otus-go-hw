@@ -15,9 +15,9 @@ type EventStorage interface {
 	// Create создает событие.
 	Create(event storagecontracts.Event) (storagecontracts.Event, error)
 	// Update обновляет событие.
-	Update(ID string, event storagecontracts.Event) (storagecontracts.Event, error)
+	Update(id string, event storagecontracts.Event) (storagecontracts.Event, error)
 	// Delete удаляет событие.
-	Delete(ID string) error
+	Delete(id string) error
 	// GetEventsForDay возвращает события на конкретный день
 	GetEventsForDay(day time.Time) ([]storagecontracts.Event, error)
 	// GetEventsForWeek возвращает события на неделю
@@ -31,11 +31,9 @@ func New(configs configuration.StorageConf) *EventStorage {
 	switch configs.Type {
 	case "database":
 		storage = sqlstorage.New(configs.Database)
-		break
 	case "in-memory":
 	default:
 		storage = memorystorage.New()
-		break
 	}
 	return &storage
 }

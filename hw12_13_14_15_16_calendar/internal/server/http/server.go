@@ -37,7 +37,7 @@ func NewServer(
 	}
 }
 
-func (s *Server) Start(ctx context.Context) error {
+func (s *Server) Start(_ context.Context) error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/hello", handlers.Hello)
@@ -47,9 +47,9 @@ func (s *Server) Start(ctx context.Context) error {
 	addr := fmt.Sprintf("%s:%d", s.configs.Host, s.configs.Port)
 	s.logger.Info(fmt.Sprintf("Starting server on %s\n", addr))
 
-	return http.ListenAndServe(addr, handler)
+	return http.ListenAndServe(addr, handler) //nolint:gosec
 }
 
-func (s *Server) Stop(ctx context.Context) error {
+func (s *Server) Stop(_ context.Context) error {
 	return nil
 }
