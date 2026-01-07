@@ -2,17 +2,17 @@ package memorystorage
 
 import (
 	"errors"
-	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
-	storageutils "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/utils"
 	"sync"
 	"testing"
 	"time"
 
+	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
+	storageutils "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// TestCreateEvent проверяет создание события
+// TestCreateEvent проверяет создание события.
 func TestCreateEvent(t *testing.T) {
 	mem := New()
 
@@ -32,7 +32,7 @@ func TestCreateEvent(t *testing.T) {
 	assert.WithinDuration(t, event.From, createdEvent.From, time.Second)
 }
 
-// TestCreateEventValidation проверяет валидацию при создании
+// TestCreateEventValidation проверяет валидацию при создании.
 func TestCreateEventValidation(t *testing.T) {
 	mem := New()
 	now := time.Now()
@@ -103,7 +103,7 @@ func TestCreateEventValidation(t *testing.T) {
 	}
 }
 
-// TestCreateEventTimeOverlap проверяет пересечение событий по времени
+// TestCreateEventTimeOverlap проверяет пересечение событий по времени.
 func TestCreateEventTimeOverlap(t *testing.T) {
 	mem := New()
 	now := time.Now()
@@ -154,7 +154,7 @@ func TestCreateEventTimeOverlap(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// TestUpdateEvent проверяет обновление события
+// TestUpdateEvent проверяет обновление события.
 func TestUpdateEvent(t *testing.T) {
 	mem := New()
 	now := time.Now()
@@ -187,7 +187,7 @@ func TestUpdateEvent(t *testing.T) {
 	assert.Equal(t, "user1", result.OwnerID) // OwnerID не должен меняться
 }
 
-// TestUpdateNonExistentEvent проверяет обновление несуществующего события
+// TestUpdateNonExistentEvent проверяет обновление несуществующего события.
 func TestUpdateNonExistentEvent(t *testing.T) {
 	mem := New()
 
@@ -203,7 +203,7 @@ func TestUpdateNonExistentEvent(t *testing.T) {
 	assert.Equal(t, storagecontracts.ErrEventNotFound, err)
 }
 
-// TestUpdateEventOverlap проверяет пересечение при обновлении
+// TestUpdateEventOverlap проверяет пересечение при обновлении.
 func TestUpdateEventOverlap(t *testing.T) {
 	mem := New()
 	now := time.Now()
@@ -251,7 +251,7 @@ func TestUpdateEventOverlap(t *testing.T) {
 	assert.Equal(t, "Вторая встреча", retrievedEvent2.Title)
 }
 
-// TestDeleteEvent проверяет удаление события
+// TestDeleteEvent проверяет удаление события.
 func TestDeleteEvent(t *testing.T) {
 	mem := New()
 
@@ -275,7 +275,7 @@ func TestDeleteEvent(t *testing.T) {
 	assert.Equal(t, storagecontracts.ErrEventNotFound, err)
 }
 
-// TestDeleteNonExistentEvent проверяет удаление несуществующего события
+// TestDeleteNonExistentEvent проверяет удаление несуществующего события.
 func TestDeleteNonExistentEvent(t *testing.T) {
 	mem := New()
 
@@ -284,7 +284,7 @@ func TestDeleteNonExistentEvent(t *testing.T) {
 	assert.Equal(t, storagecontracts.ErrEventNotFound, err)
 }
 
-// TestGetEventsForDay проверяет получение событий на день
+// TestGetEventsForDay проверяет получение событий на день.
 func TestGetEventsForDay(t *testing.T) {
 	mem := New()
 	now := time.Now()
@@ -344,7 +344,7 @@ func TestGetEventsForDay(t *testing.T) {
 	assert.Equal(t, "Завтрашняя встреча", events[0].Title)
 }
 
-// TestGetEventsForWeek проверяет получение событий на неделю
+// TestGetEventsForWeek проверяет получение событий на неделю.
 func TestGetEventsForWeek(t *testing.T) {
 	mem := New()
 	now := time.Now()
@@ -396,7 +396,7 @@ func TestGetEventsForWeek(t *testing.T) {
 	assert.Len(t, weekEvents, 3) // Все еще 3 события
 }
 
-// TestGetEventsForMonth проверяет получение событий на месяц
+// TestGetEventsForMonth проверяет получение событий на месяц.
 func TestGetEventsForMonth(t *testing.T) {
 	mem := New()
 	now := time.Now()
@@ -450,7 +450,7 @@ func TestGetEventsForMonth(t *testing.T) {
 	assert.Len(t, monthEvents, 3)
 }
 
-// TestGetEventByID проверяет получение события по ID
+// TestGetEventByID проверяет получение события по ID.
 func TestGetEventByID(t *testing.T) {
 	mem := New()
 
@@ -472,7 +472,7 @@ func TestGetEventByID(t *testing.T) {
 	assert.Equal(t, event.OwnerID, retrievedEvent.OwnerID)
 }
 
-// TestGetNonExistentEventByID проверяет получение несуществующего события
+// TestGetNonExistentEventByID проверяет получение несуществующего события.
 func TestGetNonExistentEventByID(t *testing.T) {
 	mem := New()
 
@@ -481,7 +481,7 @@ func TestGetNonExistentEventByID(t *testing.T) {
 	assert.Equal(t, storagecontracts.ErrEventNotFound, err)
 }
 
-// TestConcurrentAccess проверяет конкурентный доступ
+// TestConcurrentAccess проверяет конкурентный доступ.
 func TestConcurrentAccess(t *testing.T) {
 	mem := New()
 	now := time.Now().AddDate(0, 0, 1)
@@ -525,7 +525,7 @@ func TestConcurrentAccess(t *testing.T) {
 	}
 }
 
-// TestEventWithMultiDayDuration проверяет события с длительностью в несколько дней
+// TestEventWithMultiDayDuration проверяет события с длительностью в несколько дней.
 func TestEventWithMultiDayDuration(t *testing.T) {
 	mem := New()
 	now := time.Now()
@@ -556,7 +556,7 @@ func TestEventWithMultiDayDuration(t *testing.T) {
 	assert.Len(t, eventsDay3, 1)
 }
 
-// TestNormalizeDate проверяет нормализацию даты
+// TestNormalizeDate проверяет нормализацию даты.
 func TestNormalizeDate(t *testing.T) {
 	now := time.Now()
 	normalized := storageutils.NormalizeDate(now)
@@ -570,7 +570,7 @@ func TestNormalizeDate(t *testing.T) {
 	assert.Equal(t, 0, normalized.Nanosecond())
 }
 
-// TestEventsOverlap проверяет функцию проверки пересечения событий
+// TestEventsOverlap проверяет функцию проверки пересечения событий.
 func TestEventsOverlap(t *testing.T) {
 	now := time.Now()
 

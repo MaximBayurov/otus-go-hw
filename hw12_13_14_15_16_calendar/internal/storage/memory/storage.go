@@ -1,11 +1,11 @@
 package memorystorage
 
 import (
-	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
-	storageutils "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/utils"
 	"sync"
 	"time"
 
+	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
+	storageutils "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/utils"
 	"github.com/google/uuid"
 )
 
@@ -107,7 +107,7 @@ func (s *Storage) Delete(ID string) error {
 	return nil
 }
 
-// GetEventsForDay возвращает события на конкретный день
+// GetEventsForDay возвращает события на конкретный день.
 func (s *Storage) GetEventsForDay(day time.Time) ([]storagecontracts.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -131,7 +131,7 @@ func (s *Storage) GetEventsForDay(day time.Time) ([]storagecontracts.Event, erro
 	return events, nil
 }
 
-// GetEventsForWeek возвращает события на неделю
+// GetEventsForWeek возвращает события на неделю.
 func (s *Storage) GetEventsForWeek(startOfWeek time.Time) ([]storagecontracts.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -143,7 +143,7 @@ func (s *Storage) GetEventsForWeek(startOfWeek time.Time) ([]storagecontracts.Ev
 	return s.getEventsForPeriod(startOfWeek, endDate)
 }
 
-// GetEventsForMonth возвращает события на месяц
+// GetEventsForMonth возвращает события на месяц.
 func (s *Storage) GetEventsForMonth(startOfMonth time.Time) ([]storagecontracts.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -156,7 +156,7 @@ func (s *Storage) GetEventsForMonth(startOfMonth time.Time) ([]storagecontracts.
 	return s.getEventsForPeriod(startDate, nextMonth)
 }
 
-// GetEventByID возвращает событие по ID
+// GetEventByID возвращает событие по ID.
 func (s *Storage) GetEventByID(ID string) (storagecontracts.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -169,7 +169,7 @@ func (s *Storage) GetEventByID(ID string) (storagecontracts.Event, error) {
 	return event, nil
 }
 
-// getEventsForPeriod возвращает события за переданный период
+// getEventsForPeriod возвращает события за переданный период.
 func (s *Storage) getEventsForPeriod(startDate, endDate time.Time) ([]storagecontracts.Event, error) {
 	events := make([]storagecontracts.Event, 0)
 
@@ -190,7 +190,7 @@ func (s *Storage) getEventsForPeriod(startDate, endDate time.Time) ([]storagecon
 	return events, nil
 }
 
-// checkTimeOverlap проверяет пересечение по времени
+// checkTimeOverlap проверяет пересечение по времени.
 func (s *Storage) checkTimeOverlap(event storagecontracts.Event) error {
 	// Получаем все события на дату начала
 	date := storageutils.NormalizeDate(event.From)
@@ -215,7 +215,7 @@ func (s *Storage) checkTimeOverlap(event storagecontracts.Event) error {
 	return nil
 }
 
-// checkTimeOverlapExcluding проверяет пересечение, исключая указанное событие
+// checkTimeOverlapExcluding проверяет пересечение, исключая указанное событие.
 func (s *Storage) checkTimeOverlapExcluding(event storagecontracts.Event, excludeID string) error {
 	date := storageutils.NormalizeDate(event.From)
 	eventIDs, exists := s.byDate[date]
@@ -241,7 +241,7 @@ func (s *Storage) checkTimeOverlapExcluding(event storagecontracts.Event, exclud
 	return nil
 }
 
-// updateIndexes обновляет индексы для события
+// updateIndexes обновляет индексы для события.
 func (s *Storage) updateIndexes(event storagecontracts.Event) {
 	// Индекс по датам (для всех дней, которые охватывает событие)
 	startDate := storageutils.NormalizeDate(event.From)
@@ -255,7 +255,7 @@ func (s *Storage) updateIndexes(event storagecontracts.Event) {
 	}
 }
 
-// removeFromIndexes удаляет событие из индексов
+// removeFromIndexes удаляет событие из индексов.
 func (s *Storage) removeFromIndexes(event storagecontracts.Event) {
 	// Удаляем из индекса по датам
 	startDate := storageutils.NormalizeDate(event.From)
@@ -271,7 +271,7 @@ func (s *Storage) removeFromIndexes(event storagecontracts.Event) {
 	}
 }
 
-// validateEvent проверяет корректность события
+// validateEvent проверяет корректность события.
 func validateEvent(event storagecontracts.Event) error {
 	// Проверка длительности
 	if event.From.After(event.To) || event.From.Equal(event.To) {

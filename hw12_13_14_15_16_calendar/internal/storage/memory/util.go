@@ -4,7 +4,7 @@ import (
 	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
 )
 
-// eventsOverlap проверяет пересечение двух событий
+// eventsOverlap проверяет пересечение двух событий.
 func eventsOverlap(e1, e2 storagecontracts.Event) bool {
 	// События одного пользователя?
 	if e1.OwnerID != e2.OwnerID {

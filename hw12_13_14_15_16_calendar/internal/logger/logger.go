@@ -2,11 +2,12 @@ package logger
 
 import (
 	"fmt"
-	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 )
 
 type Logger struct {
@@ -22,12 +23,12 @@ func New(configs configuration.LoggerConf) *Logger {
 	flags := 0
 
 	var err error
-	if err = os.MkdirAll(filepath.Dir(configs.File), 0755); err != nil {
+	if err = os.MkdirAll(filepath.Dir(configs.File), 0o755); err != nil {
 		log.Fatalln(fmt.Errorf("failed to create log directory: %w", err))
 	}
 
 	var logFile *os.File
-	if logFile, err = os.OpenFile(configs.File, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+	if logFile, err = os.OpenFile(configs.File, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644); err != nil {
 		log.Fatalln(fmt.Errorf("failed to open log file: %w", err))
 	}
 

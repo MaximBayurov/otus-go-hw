@@ -18,7 +18,7 @@ var levelMap = map[string]LogLevel{
 	"FATAL": FATAL,
 }
 
-// String возвращает строковое представление
+// String возвращает строковое представление.
 func (l LogLevel) String() string {
 	for s, level := range levelMap {
 		if level == l {
@@ -28,7 +28,7 @@ func (l LogLevel) String() string {
 	return ""
 }
 
-// ParseStatus преобразует строку в Status
+// ParseStatus преобразует строку в Status.
 func ParseStatus(level string) LogLevel {
 	result := DEBUG
 

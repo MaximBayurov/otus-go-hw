@@ -3,13 +3,14 @@ package sqlstorage
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
-	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
-	storageutils "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/utils"
-	"github.com/google/uuid"
 	"time"
 
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
+	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
+	storageutils "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/utils"
+	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 )
@@ -92,7 +93,6 @@ func (s *Storage) Create(event storagecontracts.Event) (storagecontracts.Event, 
 			"notify_time": event.Notify,
 		},
 	)
-
 	if err != nil {
 		return storagecontracts.Event{}, fmt.Errorf("creating event: %w", err)
 	}
@@ -147,7 +147,6 @@ func (s *Storage) Update(ID string, event storagecontracts.Event) (storagecontra
 		query,
 		map[string]interface{}{},
 	)
-
 	if err != nil {
 		return storagecontracts.Event{}, fmt.Errorf("event update: %w", err)
 	}
@@ -201,7 +200,7 @@ func (s *Storage) Delete(ID string) error {
 	return nil
 }
 
-// GetEventsForDay возвращает события на конкретный день
+// GetEventsForDay возвращает события на конкретный день.
 func (s *Storage) GetEventsForDay(day time.Time) ([]storagecontracts.Event, error) {
 	start := storageutils.NormalizeDate(day)
 	end := start.AddDate(0, 0, 1)
@@ -209,7 +208,7 @@ func (s *Storage) GetEventsForDay(day time.Time) ([]storagecontracts.Event, erro
 	return s.getEventsForPeriod(start, end)
 }
 
-// GetEventsForWeek возвращает события на неделю
+// GetEventsForWeek возвращает события на неделю.
 func (s *Storage) GetEventsForWeek(startOfWeek time.Time) ([]storagecontracts.Event, error) {
 	start := storageutils.NormalizeDate(startOfWeek)
 	end := start.AddDate(0, 0, 7)
@@ -217,7 +216,7 @@ func (s *Storage) GetEventsForWeek(startOfWeek time.Time) ([]storagecontracts.Ev
 	return s.getEventsForPeriod(start, end)
 }
 
-// GetEventsForMonth возвращает события на месяц
+// GetEventsForMonth возвращает события на месяц.
 func (s *Storage) GetEventsForMonth(startOfMonth time.Time) ([]storagecontracts.Event, error) {
 	// Нормализуем начало месяца
 	start := storageutils.NormalizeDate(startOfMonth)
@@ -226,7 +225,7 @@ func (s *Storage) GetEventsForMonth(startOfMonth time.Time) ([]storagecontracts.
 	return s.getEventsForPeriod(start, end)
 }
 
-// checkTimeOverlap проверяет пересечение по времени
+// checkTimeOverlap проверяет пересечение по времени.
 func (s *Storage) checkTimeOverlap(tx *sqlx.Tx, event storagecontracts.Event) error {
 	query := `
 		SELECT COUNT(*) 
@@ -249,7 +248,6 @@ func (s *Storage) checkTimeOverlap(tx *sqlx.Tx, event storagecontracts.Event) er
 			"to":       event.To,
 		},
 	)
-
 	if err != nil {
 		return fmt.Errorf("time overlap check: %w", err)
 	}
@@ -265,7 +263,7 @@ func (s *Storage) checkTimeOverlap(tx *sqlx.Tx, event storagecontracts.Event) er
 	return nil
 }
 
-// checkTimeOverlapExcluding проверяет пересечение, исключая указанное событие
+// checkTimeOverlapExcluding проверяет пересечение, исключая указанное событие.
 func (s *Storage) checkTimeOverlapExcluding(tx *sqlx.Tx, event storagecontracts.Event) error {
 	query := `
 		SELECT COUNT(*) 
@@ -290,7 +288,6 @@ func (s *Storage) checkTimeOverlapExcluding(tx *sqlx.Tx, event storagecontracts.
 			"id":       event.ID,
 		},
 	)
-
 	if err != nil {
 		return fmt.Errorf("time overlap check: %w", err)
 	}
@@ -306,7 +303,7 @@ func (s *Storage) checkTimeOverlapExcluding(tx *sqlx.Tx, event storagecontracts.
 	return nil
 }
 
-// getEventByID возвращает событие по ID
+// getEventByID возвращает событие по ID.
 func (s *Storage) getEventByID(tx *sqlx.Tx, id string) (storagecontracts.Event, error) {
 	query := `
 		SELECT id, title, start_time, end_time, description, owner_id, notify_time
@@ -319,9 +316,8 @@ func (s *Storage) getEventByID(tx *sqlx.Tx, id string) (storagecontracts.Event, 
 		query,
 		id,
 	)
-
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return storagecontracts.Event{}, storagecontracts.ErrEventNotFound
 		}
 		return storagecontracts.Event{}, fmt.Errorf("obtain event by id: %w", err)
@@ -334,7 +330,7 @@ func (s *Storage) getEventByID(tx *sqlx.Tx, id string) (storagecontracts.Event, 
 	return event, nil
 }
 
-// getEventsForPeriod возвращает список событий за переданный период
+// getEventsForPeriod возвращает список событий за переданный период.
 func (s *Storage) getEventsForPeriod(start, end time.Time) ([]storagecontracts.Event, error) {
 	query := `
 		SELECT id, title, start_time, end_time, description, owner_id, notify_time
@@ -350,7 +346,6 @@ func (s *Storage) getEventsForPeriod(start, end time.Time) ([]storagecontracts.E
 			"end_time":   end,
 		},
 	)
-
 	if err != nil {
 		return nil, fmt.Errorf("obtain events for period: %w", err)
 	}

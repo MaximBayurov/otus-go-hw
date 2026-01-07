@@ -2,11 +2,12 @@ package sqlstorage
 
 import (
 	"fmt"
-	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 	"strings"
+
+	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 )
 
-// makeDsnFromConfig создает строку подключения к базе из настроек
+// makeDsnFromConfig создает строку подключения к базе из настроек.
 func makeDsnFromConfig(configs configuration.DbConf) string {
 	var dsn strings.Builder
 	dsnParams := map[string]any{

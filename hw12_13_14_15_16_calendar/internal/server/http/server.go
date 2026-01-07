@@ -3,9 +3,10 @@ package internalhttp
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/server/http/handlers"
-	"net/http"
 )
 
 type Server struct {
@@ -22,8 +23,7 @@ type Logger interface {
 	Fatal(msg string)
 }
 
-type Application interface {
-}
+type Application interface{}
 
 func NewServer(
 	logger Logger,

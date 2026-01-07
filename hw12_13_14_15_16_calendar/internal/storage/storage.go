@@ -2,14 +2,15 @@ package storage
 
 import (
 	"context"
+	"time"
+
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
 	memorystorage "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/sql"
-	"time"
 )
 
-// EventStorage интерфейс хранилища событий
+// EventStorage интерфейс хранилища событий.
 type EventStorage interface {
 	// Create создает событие.
 	Create(event storagecontracts.Event) (storagecontracts.Event, error)
@@ -43,9 +44,9 @@ func NewContext(ctx context.Context, configs configuration.StorageConf) (*EventS
 	store := New(configs)
 
 	var val interface{} = *store
-	switch val.(type) {
+	switch val := val.(type) {
 	case sqlstorage.Storage:
-		sqlStore, ok := val.(sqlstorage.Storage)
+		sqlStore, ok := val
 		if !ok {
 			break
 		}
