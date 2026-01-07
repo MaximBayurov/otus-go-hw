@@ -3,6 +3,7 @@ package memorystorage
 import (
 	"errors"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
+	storageutils "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/utils"
 	"sync"
 	"testing"
 	"time"
@@ -324,7 +325,7 @@ func TestGetEventsForDay(t *testing.T) {
 	require.NoError(t, err)
 
 	// Получаем события на сегодня
-	events := mem.GetEventsForDay(today)
+	events, err := mem.GetEventsForDay(today)
 	require.NoError(t, err)
 	assert.Len(t, events, 2)
 
@@ -338,7 +339,7 @@ func TestGetEventsForDay(t *testing.T) {
 	assert.NotContains(t, titles, "Завтрашняя встреча")
 
 	// Получаем события на завтра
-	events = mem.GetEventsForDay(tomorrow)
+	events, err = mem.GetEventsForDay(tomorrow)
 	assert.Len(t, events, 1)
 	assert.Equal(t, "Завтрашняя встреча", events[0].Title)
 }
@@ -377,7 +378,7 @@ func TestGetEventsForWeek(t *testing.T) {
 	}
 
 	// Получаем события на неделю
-	weekEvents := mem.GetEventsForWeek(startOfWeek)
+	weekEvents, err := mem.GetEventsForWeek(startOfWeek)
 	assert.Len(t, weekEvents, 3)
 
 	// Проверяем, что события следующей недели не попали в результат
@@ -388,10 +389,10 @@ func TestGetEventsForWeek(t *testing.T) {
 		OwnerID: "user1",
 	}
 
-	_, err := mem.Create(nextWeekEvent)
+	_, err = mem.Create(nextWeekEvent)
 	require.NoError(t, err)
 
-	weekEvents = mem.GetEventsForWeek(startOfWeek)
+	weekEvents, err = mem.GetEventsForWeek(startOfWeek)
 	assert.Len(t, weekEvents, 3) // Все еще 3 события
 }
 
@@ -429,7 +430,7 @@ func TestGetEventsForMonth(t *testing.T) {
 	}
 
 	// Получаем события на месяц
-	monthEvents := mem.GetEventsForMonth(startOfMonth)
+	monthEvents, err := mem.GetEventsForMonth(startOfMonth)
 	assert.Len(t, monthEvents, 3)
 
 	// Создаем событие на следующий месяц
@@ -440,11 +441,11 @@ func TestGetEventsForMonth(t *testing.T) {
 		OwnerID: "user1",
 	}
 
-	_, err := mem.Create(nextMonthEvent)
+	_, err = mem.Create(nextMonthEvent)
 	require.NoError(t, err)
 
 	// Проверяем, что событие следующего месяца не попало в результат
-	monthEvents = mem.GetEventsForMonth(startOfMonth)
+	monthEvents, err = mem.GetEventsForMonth(startOfMonth)
 	require.NoError(t, err)
 	assert.Len(t, monthEvents, 3)
 }
@@ -545,13 +546,13 @@ func TestEventWithMultiDayDuration(t *testing.T) {
 	day2 := day1.AddDate(0, 0, 1)
 	day3 := day1.AddDate(0, 0, 2)
 
-	eventsDay1 := mem.GetEventsForDay(day1)
+	eventsDay1, err := mem.GetEventsForDay(day1)
 	assert.Len(t, eventsDay1, 1)
 
-	eventsDay2 := mem.GetEventsForDay(day2)
+	eventsDay2, err := mem.GetEventsForDay(day2)
 	assert.Len(t, eventsDay2, 1)
 
-	eventsDay3 := mem.GetEventsForDay(day3)
+	eventsDay3, err := mem.GetEventsForDay(day3)
 	assert.Len(t, eventsDay3, 1)
 }
 
