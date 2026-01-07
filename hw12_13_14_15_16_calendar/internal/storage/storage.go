@@ -46,19 +46,14 @@ func NewContext(ctx context.Context, configs configuration.StorageConf) (*EventS
 	var val interface{} = *store
 	switch val := val.(type) {
 	case sqlstorage.Storage:
-		sqlStore, ok := val
-		if !ok {
-			break
-		}
-
-		if err := sqlStore.Connect(ctx); err != nil {
+		if err := val.Connect(ctx); err != nil {
 			return nil, err
 		}
 
 		go func() {
 			<-ctx.Done()
 
-			if err := sqlStore.Close(ctx); err != nil {
+			if err := val.Close(ctx); err != nil {
 				panic(err)
 			}
 		}()
