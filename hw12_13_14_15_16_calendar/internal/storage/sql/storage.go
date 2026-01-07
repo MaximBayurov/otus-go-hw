@@ -145,7 +145,14 @@ func (s *Storage) Update(id string, event storagecontracts.Event) (storagecontra
 	var result storagecontracts.Event
 	rows, err := tx.NamedQuery(
 		query,
-		map[string]interface{}{},
+		map[string]interface{}{
+			"title":       event.Title,
+			"start_time":  event.From,
+			"end_time":    event.To,
+			"description": event.Description,
+			"notify_time": event.Notify,
+			"updated_at":  time.Now(),
+		},
 	)
 	if err != nil {
 		return storagecontracts.Event{}, fmt.Errorf("event update: %w", err)
