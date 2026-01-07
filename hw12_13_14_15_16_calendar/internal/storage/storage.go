@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
-	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
+	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
 	memorystorage "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/sql"
 	"time"
