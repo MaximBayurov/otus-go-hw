@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 	srvcontr "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/server/contracts"
@@ -23,14 +24,16 @@ func NewServer(
 	configs configuration.ServerConf,
 ) *Server {
 	return &Server{
-		srv:     &http.Server{},
+		srv: &http.Server{
+			ReadHeaderTimeout: 10 * time.Second,
+		},
 		logger:  logger,
 		app:     app,
 		configs: configs,
 	}
 }
 
-func (s *Server) Start(ctx context.Context) error {
+func (s *Server) Start(_ context.Context) error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/hello", httphandlers.Hello)
@@ -49,7 +52,7 @@ func (s *Server) Start(ctx context.Context) error {
 
 	s.srv.Addr = addr
 	s.srv.Handler = handler
-	return s.srv.ListenAndServe() //nolint:gosec
+	return s.srv.ListenAndServe()
 }
 
 func (s *Server) Stop(ctx context.Context) error {

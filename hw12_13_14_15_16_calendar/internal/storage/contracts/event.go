@@ -8,6 +8,6 @@ type Event struct {
 	From        time.Time `db:"start_time" json:"from"`
 	To          time.Time `db:"end_time" json:"to"`
 	Description string    `db:"description" json:"description"`
-	OwnerID     string    `db:"owner_id" json:"ownerID"`
+	OwnerID     string    `db:"owner_id" json:"ownerId"`
 	Notify      time.Time `db:"notify_time" json:"notify"`
 }
