@@ -26,37 +26,29 @@ type EventStorage interface {
 	GetEventsForMonth(startOfMonth time.Time) ([]storagecontracts.Event, error)
 }
 
-func New(configs configuration.StorageConf) *EventStorage {
+func NewContext(ctx context.Context, configs configuration.StorageConf) (*EventStorage, error) {
 	var storage EventStorage
 	switch configs.Type {
 	case "database":
-		storage = sqlstorage.New(configs.Database)
-	case "in-memory":
-	default:
-		storage = memorystorage.New()
-	}
-	return &storage
-}
+		s := sqlstorage.New(configs.Database)
 
-func NewContext(ctx context.Context, configs configuration.StorageConf) (*EventStorage, error) {
-	store := New(configs)
-
-	var val interface{} = *store
-	switch val := val.(type) {
-	case sqlstorage.Storage:
-		if err := val.Connect(ctx); err != nil {
+		if err := s.Connect(ctx); err != nil {
 			return nil, err
 		}
 
 		go func() {
 			<-ctx.Done()
 
-			if err := val.Close(ctx); err != nil {
+			if err := s.Close(ctx); err != nil {
 				panic(err)
 			}
 		}()
+
+		storage = s
+	case "in-memory":
+		storage = memorystorage.New()
 	default:
-		break
+		storage = memorystorage.New()
 	}
-	return store, nil
+	return &storage, nil
 }

@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	srvcontr "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/server/contracts"
 )
 
-func loggingMiddleware(logger *Logger) func(http.Handler) http.Handler {
+func loggingMiddleware(logger *srvcontr.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {

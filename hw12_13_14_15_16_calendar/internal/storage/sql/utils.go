@@ -19,7 +19,18 @@ func makeDsnFromConfig(configs configuration.DbConf) string {
 	}
 
 	for key, value := range dsnParams {
-		dsn.WriteString(fmt.Sprintf("%s=%s", key, value))
+		var format string
+		switch value.(type) {
+		case int:
+			format = "%s=%d "
+		case string:
+			format = "%s=%s "
+		default:
+			continue
+		}
+		dsn.WriteString(fmt.Sprintf(format, key, value))
+		dsn.WriteString(" ")
 	}
-	return dsn.String()
+
+	return strings.TrimRight(dsn.String(), " ")
 }

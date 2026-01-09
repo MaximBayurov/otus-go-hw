@@ -34,4 +34,10 @@ lint: install-lint-deps
 migrate:
 	goose up
 
+generate:
+	rm -rf internal/pb
+	mkdir -p internal/pb
+
+	protoc --proto_path=api/calendar/ --go_out=internal/pb --go-grpc_out=internal/pb api/calendar/*.proto
+
 .PHONY: build run build-img run-img version test lint

@@ -11,7 +11,7 @@ import (
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/server"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -41,9 +41,9 @@ func main() {
 		logg.Error("failed to init store: " + err.Error())
 	}
 
-	calendar := app.New(logg, store)
+	calendar := app.New(logg, *store)
 
-	server := internalhttp.NewServer(logg, calendar, config.Server)
+	serv := server.NewServer(logg, calendar, config.Server)
 
 	go func() {
 		<-ctx.Done()
@@ -51,13 +51,13 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		if err := server.Stop(ctx); err != nil {
+		if err := serv.Stop(ctx); err != nil {
 			logg.Error("failed to stop http server: " + err.Error())
 		}
 	}()
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
+	if err := serv.Start(ctx); err != nil {
+		logg.Error(err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}

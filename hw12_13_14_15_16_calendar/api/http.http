@@ -1,0 +1,144 @@
+###
+< {%
+from = new Date()
+from.setHours(from.getHours() + 2)
+fromStr = from.toISOString()
+
+to = new Date()
+to.setHours(to.getHours() + 3)
+toStr = to.toISOString()
+
+notify = new Date(from)
+notify.setHours(notify.getHours() + 1)
+notifyStr = from.toISOString()
+
+request.variables.set('title', "New event")
+request.variables.set('from', fromStr)
+request.variables.set('to', toStr)
+request.variables.set('description', "New test event description")
+request.variables.set('ownerID', "testOwnerId")
+request.variables.set('notify', notifyStr)
+%}
+
+PUT {{host}}/events/create
+Content-Type: application/json
+
+{
+  "title": "{{title}}",
+  "from": "{{from}}",
+  "to": "{{to}}",
+  "description": "{{description}}",
+  "ownerID": "{{ownerID}}",
+  "notify": "{{notify}}"
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+< {%
+    from = new Date()
+    from.setHours(from.getHours() + 4)
+    fromStr = from.toISOString()
+
+    to = new Date()
+    to.setHours(to.getHours() + 5)
+    toStr = to.toISOString()
+
+    notify = new Date(from)
+    notify.setHours(notify.getHours() + 3)
+    notifyStr = from.toISOString()
+
+    request.variables.set("id", "6105abe7-adf7-4e71-8b3a-dea0b2fd9b1e")
+
+    request.variables.set('title', "Updated event")
+    request.variables.set('from', fromStr)
+    request.variables.set('to', toStr)
+    request.variables.set('description', "Updated test event description")
+    request.variables.set('notify', notifyStr)
+%}
+
+PATCH {{host}}/events/{{id}}
+Content-Type: application/json
+
+{
+  "title": "{{title}}",
+  "from": "{{from}}",
+  "to": "{{to}}",
+  "description": "{{description}}",
+  "notify": "{{notify}}"
+}
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+< {%
+    request.variables.set("id", "6105abe7-adf7-4e71-8b3a-dea0b2fd9b1e") //set id
+%}
+
+DELETE {{host}}/events/{{id}}
+Content-Type: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+< {%
+    day = new Date()
+    dayStr = day.toISOString()
+
+    request.variables.set("day", dayStr)
+%}
+
+GET {{host}}/events/list/daily?from={{day}}
+Content-Type: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+< {%
+    day = new Date()
+    dayStr = day.toISOString()
+
+    request.variables.set("startOfWeek", dayStr)
+%}
+
+GET {{host}}/events/list/weekly?from={{startOfWeek}}
+Content-Type: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+< {%
+    day = new Date()
+    dayStr = day.toISOString()
+
+    request.variables.set("startOfMonth", dayStr)
+%}
+
+GET {{host}}/events/list/monthly?from={{startOfMonth}}
+Content-Type: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}

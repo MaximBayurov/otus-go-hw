@@ -93,10 +93,12 @@ func (s *Storage) Create(event storagecontracts.Event) (storagecontracts.Event, 
 			"notify_time": event.Notify,
 		},
 	)
+	defer closeRows(rows)
 	if err != nil {
 		return storagecontracts.Event{}, fmt.Errorf("creating event: %w", err)
 	}
 
+	rows.Next()
 	if err := rows.StructScan(&result); err != nil {
 		return storagecontracts.Event{}, err
 	}
@@ -119,10 +121,13 @@ func (s *Storage) Update(id string, event storagecontracts.Event) (storagecontra
 	}()
 
 	// Получаем существующее событие для проверки
-	_, err = s.getEventByID(tx, id)
+	existingEvent, err := s.getEventByID(tx, id)
 	if err != nil {
 		return storagecontracts.Event{}, err
 	}
+
+	event.ID = existingEvent.ID
+	event.OwnerID = existingEvent.OwnerID
 
 	// Проверяем пересечение, исключая текущее событие
 	if err := s.checkTimeOverlapExcluding(tx, event); err != nil {
@@ -146,6 +151,7 @@ func (s *Storage) Update(id string, event storagecontracts.Event) (storagecontra
 	rows, err := tx.NamedQuery(
 		query,
 		map[string]interface{}{
+			"id":          event.ID,
 			"title":       event.Title,
 			"start_time":  event.From,
 			"end_time":    event.To,
@@ -154,10 +160,12 @@ func (s *Storage) Update(id string, event storagecontracts.Event) (storagecontra
 			"updated_at":  time.Now(),
 		},
 	)
+	defer closeRows(rows)
 	if err != nil {
 		return storagecontracts.Event{}, fmt.Errorf("event update: %w", err)
 	}
 
+	rows.Next()
 	if err := rows.StructScan(&result); err != nil {
 		return storagecontracts.Event{}, err
 	}
@@ -255,11 +263,13 @@ func (s *Storage) checkTimeOverlap(tx *sqlx.Tx, event storagecontracts.Event) er
 			"to":       event.To,
 		},
 	)
+	defer closeRows(rows)
 	if err != nil {
 		return fmt.Errorf("time overlap check: %w", err)
 	}
 
-	if err := rows.Scan(count); err != nil {
+	rows.Next()
+	if err := rows.Scan(&count); err != nil {
 		return err
 	}
 
@@ -268,6 +278,15 @@ func (s *Storage) checkTimeOverlap(tx *sqlx.Tx, event storagecontracts.Event) er
 	}
 
 	return nil
+}
+
+func closeRows(rows *sqlx.Rows) {
+	if rows == nil {
+		return
+	}
+	if err := rows.Close(); err != nil {
+		return
+	}
 }
 
 // checkTimeOverlapExcluding проверяет пересечение, исключая указанное событие.
@@ -295,11 +314,13 @@ func (s *Storage) checkTimeOverlapExcluding(tx *sqlx.Tx, event storagecontracts.
 			"id":       event.ID,
 		},
 	)
+	defer closeRows(rows)
 	if err != nil {
 		return fmt.Errorf("time overlap check: %w", err)
 	}
 
-	if err := rows.Scan(count); err != nil {
+	rows.Next()
+	if err := rows.Scan(&count); err != nil {
 		return err
 	}
 
@@ -321,8 +342,11 @@ func (s *Storage) getEventByID(tx *sqlx.Tx, id string) (storagecontracts.Event, 
 	var event storagecontracts.Event
 	rows, err := tx.NamedQuery(
 		query,
-		id,
+		map[string]interface{}{
+			"id": id,
+		},
 	)
+	defer closeRows(rows)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return storagecontracts.Event{}, storagecontracts.ErrEventNotFound
@@ -330,6 +354,7 @@ func (s *Storage) getEventByID(tx *sqlx.Tx, id string) (storagecontracts.Event, 
 		return storagecontracts.Event{}, fmt.Errorf("obtain event by id: %w", err)
 	}
 
+	rows.Next()
 	if err := rows.StructScan(&event); err != nil {
 		return storagecontracts.Event{}, err
 	}
@@ -353,6 +378,7 @@ func (s *Storage) getEventsForPeriod(start, end time.Time) ([]storagecontracts.E
 			"end_time":   end,
 		},
 	)
+	defer closeRows(rows)
 	if err != nil {
 		return nil, fmt.Errorf("obtain events for period: %w", err)
 	}
