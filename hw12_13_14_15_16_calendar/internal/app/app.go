@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/notification"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/server/contracts"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage"
 	storagecontracts "github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage/contracts"
@@ -13,6 +14,7 @@ type App struct {
 	logger Logger
 	store  Storage
 	contracts.Application
+	notification.Scheduled
 }
 
 type Logger interface {
@@ -113,4 +115,23 @@ func (a *App) GetEventsForMonth(_ context.Context, startOfMonth time.Time) ([]st
 		return make([]storagecontracts.Event, 0), err
 	}
 	return events, nil
+}
+
+func (a *App) GetEventsForNotification(_ context.Context, interval time.Duration) ([]storagecontracts.Event, error) {
+	var err error
+	var events []storagecontracts.Event
+
+	from := time.Now().Add(-interval)
+	if events, err = a.store.GetEventsForNotification(from); err != nil {
+		return make([]storagecontracts.Event, 0), err
+	}
+	return events, nil
+}
+
+func (a *App) DeleteEvents(startsFrom time.Time) (int, error) {
+	count, err := a.store.DeleteEvents(startsFrom)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
