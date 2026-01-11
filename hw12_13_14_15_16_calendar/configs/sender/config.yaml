@@ -1,0 +1,33 @@
+broker:
+  user: "admin"
+  password: "Password132"
+  host: "localhost"
+  port: 5672
+  exchange_name: "notification"
+  exchange_type: "direct"
+  queue_name: "notifications.queue"
+  routing_key: "notification"
+  durable: true
+  auto_delete: false
+  exclusive: false
+  no_wait: false
+  reconnect_interval: 5 #seconds
+sender:
+  workers: 5
+  retry_interval: 30 #seconds
+  max_retries: 3
+logger:
+  level: "INFO"
+  file: "logs/sender.log"
+storage:
+  type: "database" #in-memory|database
+  database:
+    host: "localhost"
+    port: 5432
+    dbname: "calendar"
+    user: "calendar_app"
+    pass: "app_calendar"
+    conn:
+      lifetime: 5 #minutes
+      max_open: 25
+      max_idle: 25

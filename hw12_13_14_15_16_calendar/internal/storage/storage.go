@@ -24,6 +24,8 @@ type EventStorage interface {
 	GetEventsForWeek(startOfWeek time.Time) ([]storagecontracts.Event, error)
 	// GetEventsForMonth возвращает события на месяц
 	GetEventsForMonth(startOfMonth time.Time) ([]storagecontracts.Event, error)
+	GetEventsForNotification(from time.Time) ([]storagecontracts.Event, error)
+	DeleteEvents(from time.Time) (int, error)
 }
 
 func NewContext(ctx context.Context, configs configuration.StorageConf) (*EventStorage, error) {

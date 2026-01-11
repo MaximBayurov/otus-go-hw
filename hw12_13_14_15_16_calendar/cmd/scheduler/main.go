@@ -6,28 +6,23 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/broker"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/configuration"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/server"
+	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/notification"
 	"github.com/MaximBayurov/otus-go-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/configs/calendar/config.yaml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "/configs/scheduler/config.yaml", "Path to configuration file")
 }
 
 func main() {
 	flag.Parse()
-
-	if flag.Arg(0) == "version" {
-		printVersion()
-		return
-	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -41,22 +36,22 @@ func main() {
 		logg.Error("failed to init store: " + err.Error())
 	}
 
-	calendar := app.New(logg, *store)
-
-	serv := server.NewServer(logg, calendar, config.Server)
+	client := broker.NewClient(config.Broker, logg)
+	if err := client.Connect(ctx); err != nil {
+		logg.Fatal("broker connect:" + err.Error())
+	}
 
 	go func() {
 		<-ctx.Done()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := serv.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+		if err := client.Close(); err != nil {
+			logg.Error("failed to broker disconnection: " + err.Error())
 		}
 	}()
 
-	if err := serv.Start(ctx); err != nil {
+	var application notification.Scheduled = app.New(logg, *store)
+	scheduler := notification.NewScheduler(application, client, logg, config.Scheduler)
+	if err := scheduler.Run(ctx); err != nil {
 		logg.Error(err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic

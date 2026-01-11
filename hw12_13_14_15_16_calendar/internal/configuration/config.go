@@ -8,9 +8,12 @@ import (
 )
 
 type Config struct {
-	Logger  LoggerConf  `mapstructure:"logger"`
-	Storage StorageConf `mapstructure:"storage"`
-	Server  ServerConf  `mapstructure:"server"`
+	Logger    LoggerConf    `mapstructure:"logger"`
+	Storage   StorageConf   `mapstructure:"storage"`
+	Server    ServerConf    `mapstructure:"server,omitempty"`
+	Broker    BrokerConf    `mapstructure:"broker,omitempty"`
+	Scheduler SchedulerConf `mapstructure:"scheduler,omitempty"`
+	Sender    SenderConf    `mapstructure:"sender,omitempty"`
 }
 
 func NewConfigFrom(filePath string) Config {
