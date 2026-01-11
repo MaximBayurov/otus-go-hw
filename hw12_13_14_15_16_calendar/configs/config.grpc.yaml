@@ -1,0 +1,19 @@
+server:
+  type: "grpc" #grpc|http
+  host: "localhost"
+  port: 50051
+logger:
+  level: "INFO"
+  file: "logs/app.log"
+storage:
+  type: "in-memory"
+  database:
+    host: "localhost"
+    port: 5432
+    dbname: "calendar"
+    user: "calendar_app"
+    pass: "app_calendar"
+    conn:
+      lifetime: 5 #minutes
+      max_open: 25
+      max_idle: 25
