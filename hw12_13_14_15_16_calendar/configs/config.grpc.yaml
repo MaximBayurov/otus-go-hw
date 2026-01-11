@@ -1,12 +1,12 @@
 server:
-  type: "http" #grpc|http
+  type: "grpc" #grpc|http
   host: "localhost"
-  port: 80
+  port: 50051
 logger:
   level: "INFO"
   file: "logs/app.log"
 storage:
-  type: "database" #in-memory|database
+  type: "in-memory"
   database:
     host: "localhost"
     port: 5432
