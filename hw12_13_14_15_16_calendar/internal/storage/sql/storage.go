@@ -240,6 +240,66 @@ func (s *Storage) GetEventsForMonth(startOfMonth time.Time) ([]storagecontracts.
 	return s.getEventsForPeriod(start, end)
 }
 
+func (s *Storage) GetEventsForNotification(from time.Time) ([]storagecontracts.Event, error) {
+	query := `
+		SELECT id, title, start_time, end_time, description, owner_id, notify_time
+		FROM events
+		WHERE notify_time >= :from AND notify_time < :to
+		ORDER BY notify_time
+	`
+
+	to := time.Now()
+	rows, err := s.db.NamedQuery(
+		query,
+		map[string]interface{}{
+			"from": from,
+			"to":   to,
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("obtain events for notification: %w", err)
+	}
+	defer closeRows(rows)
+
+	events := make([]storagecontracts.Event, 0)
+	for rows.Next() {
+		var event storagecontracts.Event
+		err := rows.StructScan(&event)
+		if err != nil {
+			return nil, fmt.Errorf("scan event row: %w", err)
+		}
+		events = append(events, event)
+	}
+
+	return events, nil
+}
+
+func (s *Storage) DeleteEvents(from time.Time) (int, error) {
+	query := `
+		DELETE FROM events 
+		WHERE events.start_time < :from
+		RETURNING id
+	`
+
+	rows, err := s.db.NamedQuery(
+		query,
+		map[string]interface{}{
+			"from": from,
+		},
+	)
+	if err != nil {
+		return 0, fmt.Errorf("delete events: %w", err)
+	}
+	defer closeRows(rows)
+
+	deletedCount := 0
+	for rows.Next() {
+		deletedCount++
+	}
+
+	return deletedCount, nil
+}
+
 // checkTimeOverlap проверяет пересечение по времени.
 func (s *Storage) checkTimeOverlap(tx *sqlx.Tx, event storagecontracts.Event) error {
 	query := `

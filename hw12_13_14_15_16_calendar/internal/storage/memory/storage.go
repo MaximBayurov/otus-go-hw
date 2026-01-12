@@ -169,6 +169,14 @@ func (s *Storage) GetEventByID(id string) (storagecontracts.Event, error) {
 	return event, nil
 }
 
+func (s *Storage) GetEventsForNotification(_ time.Time) ([]storagecontracts.Event, error) {
+	panic("not implemented method")
+}
+
+func (s *Storage) DeleteEvents(_ time.Time) (int, error) {
+	panic("not implemented method")
+}
+
 // getEventsForPeriod возвращает события за переданный период.
 func (s *Storage) getEventsForPeriod(startDate, endDate time.Time) ([]storagecontracts.Event, error) { //nolint:unparam
 	events := make([]storagecontracts.Event, 0)
