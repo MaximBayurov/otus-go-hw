@@ -3,6 +3,7 @@ package configuration
 import (
 	"errors"
 	"log"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -19,6 +20,8 @@ type Config struct {
 func NewConfigFrom(filePath string) Config {
 	pathInfo := getConfigPathInfoFor(filePath)
 
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.SetConfigName(pathInfo.Name)
 	viper.AddConfigPath(pathInfo.Path)
 

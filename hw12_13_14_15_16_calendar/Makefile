@@ -4,8 +4,10 @@ SENDER_BIN := "./bin/calendar_sender"
 
 DOCKER_IMG="calendar:develop"
 
-GIT_HASH := $(shell git log --format="%h" -n 1)
+GIT_HASH := $(shell git log --pretty="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
+
+DOCKER_COMPOSE_INTEGRATION=docker-compose --file=deployments/docker-compose.integration.yaml --env-file=testing.env
 
 build:
 	go build -v -o $(APP_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
@@ -46,5 +48,38 @@ generate:
 	mkdir -p internal/pb
 
 	protoc --proto_path=api/calendar/ --go_out=internal/pb --go-grpc_out=internal/pb api/calendar/*.proto
+
+rebuild-containers:
+	docker-compose build --no-cache
+
+up:
+	docker-compose --file=./deployments/docker-compose.yaml up -d
+
+down:
+	docker-compose --file=./deployments/docker-compose.yaml down
+
+restart:
+	make down
+	make up
+
+rebuild-containers-testing:
+	$(DOCKER_COMPOSE_INTEGRATION) --profile=tests build --no-cache
+
+up-testing:
+	$(DOCKER_COMPOSE_INTEGRATION) up -d
+
+down-testing:
+	$(DOCKER_COMPOSE_INTEGRATION) down
+
+integration-tests:
+	$(DOCKER_COMPOSE_INTEGRATION) up -d --wait
+
+	$(DOCKER_COMPOSE_INTEGRATION) run --rm -P integration-tests -test.v
+
+	TEST_EXIT_CODE=$$?
+
+	make down-testing
+
+	exit $$TEST_EXIT_CODE
 
 .PHONY: build run build-img run-img version test lint
