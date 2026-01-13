@@ -214,9 +214,9 @@ func (s *TestEventsAPI) TestGetEventsForPeriod() {
 			title string
 			day   int
 		}{
-			{"Понедельник", 0},
-			{"Среда", 2},
-			{"Пятница", 4},
+			{"Первая встреча", 1},
+			{"Вторая встреча", 3},
+			{"Третья встреча", 5},
 		}
 
 		for _, event := range events {
