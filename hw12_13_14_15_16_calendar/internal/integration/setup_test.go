@@ -11,13 +11,12 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-
-	_ "github.com/lib/pq"
 )
 
-// TestSuite - базовый класс для всех интеграционных тестов
+// TestSuite - базовый класс для всех интеграционных тестов.
 type TestSuite struct {
 	suite.Suite
 	apiClient   *APIClient
@@ -26,13 +25,13 @@ type TestSuite struct {
 	databaseDSN string
 }
 
-// APIClient - клиент для работы с API
+// APIClient - клиент для работы с API.
 type APIClient struct {
 	baseURL    string
 	httpClient *http.Client
 }
 
-// NewAPIClient создает новый API клиент
+// NewAPIClient создает новый API клиент.
 func NewAPIClient(baseURL string) *APIClient {
 	return &APIClient{
 		baseURL: baseURL,
@@ -42,7 +41,7 @@ func NewAPIClient(baseURL string) *APIClient {
 	}
 }
 
-// SetupSuite выполняется перед всеми тестами
+// SetupSuite выполняется перед всеми тестами.
 func (s *TestSuite) SetupSuite() {
 	// Читаем конфигурацию из переменных окружения
 	s.baseURL = os.Getenv("API_URL")
@@ -74,27 +73,27 @@ func (s *TestSuite) SetupSuite() {
 	s.cleanDatabase()
 }
 
-// TearDownSuite выполняется после всех тестов
+// TearDownSuite выполняется после всех тестов.
 func (s *TestSuite) TearDownSuite() {
 	if s.db != nil {
 		_ = s.db.Close()
 	}
 }
 
-// SetupTest выполняется перед каждым тестом
+// SetupTest выполняется перед каждым тестом.
 func (s *TestSuite) SetupTest() {
 	// Очищаем базу данных перед каждым тестом
 	s.cleanDatabase()
 }
 
-// cleanDatabase очищает базу данных
+// cleanDatabase очищает базу данных.
 func (s *TestSuite) cleanDatabase() {
 	tables := []string{
 		"events",
 	}
 
 	for _, table := range tables {
-		_, err := s.db.Exec(fmt.Sprintf("DELETE FROM %s", table))
+		_, err := s.db.Exec(fmt.Sprintf("DELETE FROM %s", table)) //nolint:noctx
 		if err != nil {
 			// Таблица может не существовать, игнорируем ошибку
 			log.Printf("Warning: не удалось очистить таблицу %s: %v", table, err)
@@ -102,14 +101,19 @@ func (s *TestSuite) cleanDatabase() {
 	}
 }
 
-// CreateEvent создает событие через API
+// CreateEvent создает событие через API.
 func (s *TestSuite) CreateEvent(event Event) (*Event, error) {
 	jsonData, err := json.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PUT", s.baseURL+"/events/create", bytes.NewReader(jsonData))
+	req, err := http.NewRequestWithContext(
+		context.Background(),
+		"PUT",
+		s.baseURL+"/events/create",
+		bytes.NewReader(jsonData),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -140,14 +144,14 @@ func (s *TestSuite) CreateEvent(event Event) (*Event, error) {
 	return &eventResp.Event, nil
 }
 
-// Event - запрос на создание события
+// Event - запрос на создание события.
 type Event struct {
 	ID          string    `json:"id,omitempty"`
 	Title       string    `json:"title"`
 	StartTime   time.Time `json:"from"`
 	EndTime     time.Time `json:"to"`
 	Description string    `json:"description"`
-	OwnerId     string    `json:"ownerID"`
+	OwnerID     string    `json:"ownerId"`
 	Notify      time.Time `json:"notify"`
 }
 

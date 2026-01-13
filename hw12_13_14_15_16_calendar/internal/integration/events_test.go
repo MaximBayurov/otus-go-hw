@@ -2,17 +2,18 @@ package integration
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
-	"github.com/stretchr/testify/suite"
 	"net/http"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
-// TestEventsAPI тестирует API событий
+// TestEventsAPI тестирует API событий.
 type TestEventsAPI struct {
 	TestSuite
 }
@@ -33,7 +34,7 @@ func (s *TestEventsAPI) TestCreateEvent() {
 			StartTime:   time.Now().Add(2 * time.Hour),
 			EndTime:     time.Now().Add(3 * time.Hour),
 			Description: "Описание тестовой встречи",
-			OwnerId:     userID,
+			OwnerID:     userID,
 			Notify:      time.Now().Add(1 * time.Hour).Add(30 * time.Minute),
 		}
 
@@ -44,7 +45,7 @@ func (s *TestEventsAPI) TestCreateEvent() {
 		assert.NotEmpty(t, event.ID)
 		assert.Equal(t, eventReq.Title, event.Title)
 		assert.Equal(t, eventReq.Description, event.Description)
-		assert.Equal(t, userID, event.OwnerId)
+		assert.Equal(t, userID, event.OwnerID)
 		assert.WithinDuration(t, eventReq.Notify, event.Notify, time.Second)
 		assert.WithinDuration(t, eventReq.StartTime, event.StartTime, time.Second)
 		assert.WithinDuration(t, eventReq.EndTime, event.EndTime, time.Second)
@@ -57,14 +58,19 @@ func (s *TestEventsAPI) TestCreateEvent() {
 			StartTime:   time.Now().Add(2 * time.Hour),
 			EndTime:     time.Now().Add(1 * time.Hour), // end_time раньше start_time
 			Description: "Некорректное событие описание",
-			OwnerId:     userID,
+			OwnerID:     userID,
 			Notify:      time.Now().Add(30 * time.Minute),
 		}
 
 		jsonData, err := json.Marshal(eventReq)
 		require.NoError(t, err)
 
-		req, err := http.NewRequest("PUT", s.baseURL+"/events/create", bytes.NewReader(jsonData))
+		req, err := http.NewRequestWithContext(
+			context.Background(),
+			"PUT",
+			s.baseURL+"/events/create",
+			bytes.NewReader(jsonData),
+		)
 		require.NoError(t, err)
 
 		req.Header.Set("Content-Type", "application/json")
@@ -87,7 +93,7 @@ func (s *TestEventsAPI) TestCreateEvent() {
 			StartTime:   time.Now().Add(6 * time.Hour),
 			EndTime:     time.Now().Add(7 * time.Hour),
 			Description: "Некорректное событие описание",
-			OwnerId:     userID,
+			OwnerID:     userID,
 			Notify:      time.Now().Add(30 * time.Minute),
 		}
 
@@ -101,14 +107,19 @@ func (s *TestEventsAPI) TestCreateEvent() {
 			StartTime:   time.Now().Add(6*time.Hour + 30*time.Minute),
 			EndTime:     time.Now().Add(7*time.Hour + 30*time.Minute),
 			Description: "Некорректное событие описание",
-			OwnerId:     userID,
+			OwnerID:     userID,
 			Notify:      time.Now().Add(30 * time.Minute),
 		}
 
 		jsonData, err := json.Marshal(event2Req)
 		require.NoError(t, err)
 
-		req, err := http.NewRequest("PUT", s.baseURL+"/events/create", bytes.NewReader(jsonData))
+		req, err := http.NewRequestWithContext(
+			context.Background(),
+			"PUT",
+			s.baseURL+"/events/create",
+			bytes.NewReader(jsonData),
+		)
 		require.NoError(t, err)
 
 		req.Header.Set("Content-Type", "application/json")
@@ -141,7 +152,7 @@ func (s *TestEventsAPI) TestGetEventsForPeriod() {
 				StartTime:   tomorrow.Add(9 * time.Hour),
 				EndTime:     tomorrow.Add(10 * time.Hour),
 				Description: "Некорректное событие описание",
-				OwnerId:     userID,
+				OwnerID:     userID,
 				Notify:      tomorrow.Add(30 * time.Minute),
 			},
 			{
@@ -149,7 +160,7 @@ func (s *TestEventsAPI) TestGetEventsForPeriod() {
 				StartTime:   tomorrow.Add(18 * time.Hour),
 				EndTime:     tomorrow.Add(19 * time.Hour),
 				Description: "Некорректное событие описание",
-				OwnerId:     userID,
+				OwnerID:     userID,
 				Notify:      tomorrow.Add(30 * time.Minute),
 			},
 		}
@@ -161,7 +172,7 @@ func (s *TestEventsAPI) TestGetEventsForPeriod() {
 		}
 
 		// Получаем события на сегодня
-		req, err := http.NewRequest("GET", s.baseURL+"/events/list/daily", nil)
+		req, err := http.NewRequestWithContext(context.Background(), "GET", s.baseURL+"/events/list/daily", nil)
 		require.NoError(t, err)
 
 		dateStr := tomorrow.Format(time.RFC3339)
@@ -213,7 +224,7 @@ func (s *TestEventsAPI) TestGetEventsForPeriod() {
 				Title:     event.title,
 				StartTime: startOfWeek.Add(time.Duration(event.day)*24*time.Hour + 10*time.Hour),
 				EndTime:   startOfWeek.Add(time.Duration(event.day)*24*time.Hour + 11*time.Hour),
-				OwnerId:   userID,
+				OwnerID:   userID,
 			}
 
 			_, err := s.CreateEvent(eventReq)
@@ -222,7 +233,12 @@ func (s *TestEventsAPI) TestGetEventsForPeriod() {
 
 		// Получаем события на неделю
 		dateStr := startOfWeek.Format(time.RFC3339)
-		req, err := http.NewRequest("GET", s.baseURL+"/events/list/weekly?from="+dateStr, nil)
+		req, err := http.NewRequestWithContext(
+			context.Background(),
+			"GET",
+			s.baseURL+"/events/list/weekly?from="+dateStr,
+			nil,
+		)
 		require.NoError(t, err)
 
 		resp, err := s.apiClient.httpClient.Do(req)
@@ -246,7 +262,7 @@ func (s *TestEventsAPI) TestGetEventsForPeriod() {
 		futureDate := time.Now().AddDate(0, 0, 30)
 		dateStr := futureDate.Format(time.RFC3339)
 
-		req, err := http.NewRequest("GET", s.baseURL+"/events/list/daily?from="+dateStr, nil)
+		req, err := http.NewRequestWithContext(context.Background(), "GET", s.baseURL+"/events/list/daily?from="+dateStr, nil)
 		require.NoError(t, err)
 
 		resp, err := s.apiClient.httpClient.Do(req)
